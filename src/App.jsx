@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Amplify } from "aws-amplify";
 import { fetchAuthSession } from "aws-amplify/auth";
 import { withAuthenticator } from "@aws-amplify/ui-react";
+import "@aws-amplify/ui-react/styles.css"; // Ensure styles are loaded
 import awsconfig from "./aws-exports";
 import "./App.css";
 
@@ -32,8 +33,8 @@ function App({ signOut, user }) {
           return;
         }
 
-        // Replace with your current WSS URL if it changes
-        const wsUrl = `wss://quyq7of7z1.execute-api.us-east-1.amazonaws.com/dev?token=${token}`;
+        // UPDATED: Added the trailing slash before the ?token for better compatibility
+        const wsUrl = `wss://quyq7of7z1.execute-api.us-east-1.amazonaws.com/dev/?token=${token}`;
 
         ws = new WebSocket(wsUrl);
 
@@ -46,7 +47,6 @@ function App({ signOut, user }) {
           try {
             const data = JSON.parse(event.data);
             
-            // The logic now correctly captures the sender from the broadcast
             setMessages((prev) => [
               ...prev,
               { 
@@ -88,7 +88,6 @@ function App({ signOut, user }) {
       return;
     }
 
-    // UPDATED PAYLOAD: Explicitly sending 'username' so Lambda can broadcast it
     const payload = {
       action: "sendMessage",
       message: newMessage,
@@ -96,8 +95,6 @@ function App({ signOut, user }) {
     };
 
     socketRef.current.send(JSON.stringify(payload));
-
-    // REMOVED: setMessages from here to fix double-message bug
     setNewMessage("");
   };
 
@@ -105,6 +102,10 @@ function App({ signOut, user }) {
     <div className="chat-wrapper">
       <div className="sidebar">
         <h3>Game Chat</h3>
+        <div className="status-indicator">
+          <span className={`dot ${wsConnected ? "online" : "offline"}`}></span>
+          {wsConnected ? "Online" : "Connecting..."}
+        </div>
         <p className="user-email">{email}</p>
         <button className="logout-btn" onClick={signOut}>
           Logout
@@ -115,13 +116,18 @@ function App({ signOut, user }) {
         <div className="chat-header"># general</div>
 
         <div className="messages">
+          {messages.length === 0 && <div className="empty-chat">No messages yet. Start the conversation!</div>}
           {messages.map((msg, idx) => (
             <div
               key={idx}
               className={`message ${msg.sender === email ? "own" : "other"}`}
             >
-              <strong>{msg.sender}: </strong>
-              <span>{msg.text}</span>
+              <div className="message-info">
+                <strong>{msg.sender}</strong>
+              </div>
+              <div className="message-bubble">
+                <span>{msg.text}</span>
+              </div>
             </div>
           ))}
         </div>
@@ -133,7 +139,11 @@ function App({ signOut, user }) {
             placeholder="Type a message..."
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           />
-          <button onClick={sendMessage} disabled={!wsConnected}>
+          <button 
+            onClick={sendMessage} 
+            disabled={!wsConnected || !newMessage.trim()}
+            className="send-btn"
+          >
             Send
           </button>
         </div>
