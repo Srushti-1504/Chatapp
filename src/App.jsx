@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Amplify } from "aws-amplify";
 import { fetchAuthSession } from "aws-amplify/auth";
 import { withAuthenticator } from "@aws-amplify/ui-react";
-import "@aws-amplify/ui-react/styles.css"; // Ensure styles are loaded
+import "@aws-amplify/ui-react/styles.css";
 import awsconfig from "./aws-exports";
 import "./App.css";
 
@@ -14,7 +14,6 @@ function App({ signOut, user }) {
   const [wsConnected, setWsConnected] = useState(false);
   const socketRef = useRef(null);
 
-  // Getting the email/username from Cognito
   const email = user?.signInDetails?.loginId || user?.username;
 
   useEffect(() => {
@@ -33,7 +32,7 @@ function App({ signOut, user }) {
           return;
         }
 
-        // UPDATED: Added the trailing slash before the ?token for better compatibility
+        // UPDATED: Using your exact WSS URL with the token handshake
         const wsUrl = `wss://quyq7of7z1.execute-api.us-east-1.amazonaws.com/dev/?token=${token}`;
 
         ws = new WebSocket(wsUrl);
@@ -46,7 +45,6 @@ function App({ signOut, user }) {
         ws.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data);
-            
             setMessages((prev) => [
               ...prev,
               { 
@@ -60,7 +58,7 @@ function App({ signOut, user }) {
         };
 
         ws.onclose = () => {
-          console.log("WebSocket Closed, reconnecting in 3s...");
+          console.log("WebSocket Closed, reconnecting...");
           setWsConnected(false);
           reconnectTimeout = setTimeout(connectWebSocket, 3000);
         };
@@ -102,32 +100,21 @@ function App({ signOut, user }) {
     <div className="chat-wrapper">
       <div className="sidebar">
         <h3>Game Chat</h3>
-        <div className="status-indicator">
-          <span className={`dot ${wsConnected ? "online" : "offline"}`}></span>
-          {wsConnected ? "Online" : "Connecting..."}
+        <div className="status-container">
+            <span className={`status-dot ${wsConnected ? "online" : "offline"}`}></span>
+            <span className="status-text">{wsConnected ? "Online" : "Connecting..."}</span>
         </div>
         <p className="user-email">{email}</p>
-        <button className="logout-btn" onClick={signOut}>
-          Logout
-        </button>
+        <button className="logout-btn" onClick={signOut}>Logout</button>
       </div>
 
       <div className="chat-container">
         <div className="chat-header"># general</div>
-
         <div className="messages">
-          {messages.length === 0 && <div className="empty-chat">No messages yet. Start the conversation!</div>}
           {messages.map((msg, idx) => (
-            <div
-              key={idx}
-              className={`message ${msg.sender === email ? "own" : "other"}`}
-            >
-              <div className="message-info">
-                <strong>{msg.sender}</strong>
-              </div>
-              <div className="message-bubble">
-                <span>{msg.text}</span>
-              </div>
+            <div key={idx} className={`message ${msg.sender === email ? "own" : "other"}`}>
+              <strong>{msg.sender}: </strong>
+              <span>{msg.text}</span>
             </div>
           ))}
         </div>
@@ -139,13 +126,7 @@ function App({ signOut, user }) {
             placeholder="Type a message..."
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           />
-          <button 
-            onClick={sendMessage} 
-            disabled={!wsConnected || !newMessage.trim()}
-            className="send-btn"
-          >
-            Send
-          </button>
+          <button onClick={sendMessage} disabled={!wsConnected}>Send</button>
         </div>
       </div>
     </div>
