@@ -13,6 +13,7 @@ function App({ signOut, user }) {
   const [wsConnected, setWsConnected] = useState(false);
   const socketRef = useRef(null);
 
+  // Getting the email/username from Cognito
   const email = user?.signInDetails?.loginId || user?.username;
 
   useEffect(() => {
@@ -23,7 +24,6 @@ function App({ signOut, user }) {
 
     const connectWebSocket = async () => {
       try {
-        // Force refresh false to use cached session, avoids Identity Pool call
         const session = await fetchAuthSession({ forceRefresh: false });
         const token = session.tokens?.idToken?.toString();
 
@@ -32,6 +32,7 @@ function App({ signOut, user }) {
           return;
         }
 
+        // Replace with your current WSS URL if it changes
         const wsUrl = `wss://quyq7of7z1.execute-api.us-east-1.amazonaws.com/dev?token=${token}`;
 
         ws = new WebSocket(wsUrl);
@@ -44,17 +45,18 @@ function App({ signOut, user }) {
         ws.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data);
+            
+            // The logic now correctly captures the sender from the broadcast
             setMessages((prev) => [
               ...prev,
-              { text: data.message, sender: data.username || "Anonymous" },
+              { 
+                text: data.message, 
+                sender: data.username || data.sender || "Anonymous" 
+              },
             ]);
           } catch (err) {
             console.error("Error parsing message:", err);
           }
-        };
-
-        ws.onerror = (err) => {
-          console.error("WebSocket Error:", err);
         };
 
         ws.onclose = () => {
@@ -65,8 +67,7 @@ function App({ signOut, user }) {
 
         socketRef.current = ws;
       } catch (err) {
-        console.error("Failed to get session:", err);
-        // Retry connection after 3s even if session fetch fails
+        console.error("Failed to connect:", err);
         reconnectTimeout = setTimeout(connectWebSocket, 3000);
       }
     };
@@ -83,19 +84,20 @@ function App({ signOut, user }) {
     if (!newMessage.trim()) return;
 
     if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
-      console.error("Socket not connected. Wait until it opens.");
+      alert("Still connecting to server... please wait.");
       return;
     }
 
+    // UPDATED PAYLOAD: Explicitly sending 'username' so Lambda can broadcast it
     const payload = {
       action: "sendMessage",
       message: newMessage,
+      username: email, 
     };
 
     socketRef.current.send(JSON.stringify(payload));
 
-    // Optimistic UI — show own message immediately
-    setMessages((prev) => [...prev, { text: newMessage, sender: email }]);
+    // REMOVED: setMessages from here to fix double-message bug
     setNewMessage("");
   };
 
@@ -118,7 +120,7 @@ function App({ signOut, user }) {
               key={idx}
               className={`message ${msg.sender === email ? "own" : "other"}`}
             >
-              <strong>{msg.sender}</strong>
+              <strong>{msg.sender}: </strong>
               <span>{msg.text}</span>
             </div>
           ))}
