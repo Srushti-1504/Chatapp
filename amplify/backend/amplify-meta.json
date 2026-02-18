@@ -1,0 +1,58 @@
+{
+  "providers": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-gamechat-dev-ca583-authRole",
+      "UnauthRoleArn": "arn:aws:iam::120337555647:role/amplify-gamechat-dev-ca583-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::120337555647:role/amplify-gamechat-dev-ca583-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-gamechat-dev-ca583-deployment",
+      "UnauthRoleName": "amplify-gamechat-dev-ca583-unauthRole",
+      "StackName": "amplify-gamechat-dev-ca583",
+      "StackId": "arn:aws:cloudformation:us-east-1:120337555647:stack/amplify-gamechat-dev-ca583/6d63aa60-0b30-11f1-be20-0e83c6194e71",
+      "AmplifyAppId": "d1jta43tnj1ov3"
+    }
+  },
+  "auth": {
+    "gamechat345764b0": {
+      "service": "Cognito",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [],
+      "customAuth": false,
+      "frontendAuthConfig": {
+        "socialProviders": [],
+        "usernameAttributes": [
+          "EMAIL"
+        ],
+        "signupAttributes": [
+          "EMAIL"
+        ],
+        "passwordProtectionSettings": {
+          "passwordPolicyMinLength": 8,
+          "passwordPolicyCharacters": []
+        },
+        "mfaConfiguration": "OFF",
+        "mfaTypes": [
+          "SMS"
+        ],
+        "verificationMechanisms": [
+          "EMAIL"
+        ]
+      },
+      "providerMetadata": {
+        "s3TemplateURL": "https://s3.amazonaws.com/amplify-gamechat-dev-ca583-deployment/amplify-cfn-templates/auth/gamechat345764b0-cloudformation-template.json",
+        "logicalId": "authgamechat345764b0"
+      },
+      "lastPushTimeStamp": "2026-02-16T12:21:49.321Z",
+      "output": {
+        "UserPoolId": "us-east-1_uNgasOtcu",
+        "AppClientIDWeb": "5231hua5k3n3sbd58sgks7r8vb",
+        "AppClientID": "7ra192hekr69ao23vfpbh127tp",
+        "IdentityPoolId": "us-east-1:1f96e01f-acbc-4db6-af71-c41ced1e2990",
+        "UserPoolArn": "arn:aws:cognito-idp:us-east-1:120337555647:userpool/us-east-1_uNgasOtcu",
+        "IdentityPoolName": "gamechat345764b0_identitypool_345764b0__dev",
+        "UserPoolName": "gamechat345764b0_userpool_345764b0"
+      },
+      "lastPushDirHash": "u9lGLOdDW6ysCnC+//S7HJZGldo="
+    }
+  }
+}

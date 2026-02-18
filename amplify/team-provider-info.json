@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-gamechat-dev-ca583-authRole",
+      "UnauthRoleArn": "arn:aws:iam::120337555647:role/amplify-gamechat-dev-ca583-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::120337555647:role/amplify-gamechat-dev-ca583-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-gamechat-dev-ca583-deployment",
+      "UnauthRoleName": "amplify-gamechat-dev-ca583-unauthRole",
+      "StackName": "amplify-gamechat-dev-ca583",
+      "StackId": "arn:aws:cloudformation:us-east-1:120337555647:stack/amplify-gamechat-dev-ca583/6d63aa60-0b30-11f1-be20-0e83c6194e71",
+      "AmplifyAppId": "d1jta43tnj1ov3"
+    },
+    "categories": {
+      "auth": {
+        "gamechat345764b0": {}
+      }
+    }
+  }
+}
